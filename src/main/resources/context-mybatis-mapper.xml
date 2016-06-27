@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:util="http://www.springframework.org/schema/util"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:context="http://www.springframework.org/schema/context" 
+	   xmlns:p="http://www.springframework.org/schema/p"
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+	        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd
+	        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+	        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+	        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd">
+
+    <tx:annotation-driven></tx:annotation-driven>
+    
+    <!-- 트랜잭션 적용 서비스(BO)(AOP로 포인트 컷 처리하여 중복 소스 제거)  -->
+ 	<aop:config>
+		<aop:pointcut id="serviceOperation" expression="execution(* com.biz..*Impl.*(..))"/>
+	</aop:config>
+
+	<!-- mybatis SqlSessionFactory 빈을 생성한다. mybatis에서 사용할 매퍼 XML의 경로를 설정한다. -->
+	
+	<!-- 파라미터가 바인드된 로그를 남기기 위한 빈 -->
+	<bean id="mybatisSqlBindLog" class="com.biz.common.interceptor.MybatisLogInterceptor"/>
+	
+	<!-- 모니터링 -->
+    <bean id="mntr-sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+	     <property name="dataSource" ref="mntr-dataSource"/>
+	     <property name="mapperLocations" value="classpath:sqlmapper/**/*.xml"/>
+	     <property name="plugins" ref="mybatisSqlBindLog"></property>
+    </bean>
+    <bean id="mntr-sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+    	<constructor-arg index="0" ref="mntr-sqlSessionFactory"></constructor-arg>
+    </bean>
+	<bean id="mntr-transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="mntr-dataSource"/>
+	</bean>
+	<tx:advice id="mntr-transactionAdvice" transaction-manager="mntr-transactionManager">
+		<tx:attributes>
+			<tx:method name="insert*" rollback-for="Exception"/>
+			<tx:method name="save*" rollback-for="Exception"/>
+			<tx:method name="add*" rollback-for="Exception"/>
+			<tx:method name="update*" rollback-for="Exception"/>
+			<tx:method name="modify*" rollback-for="Exception"/>
+			<tx:method name="delete*" rollback-for="Exception"/>
+			<tx:method name="remove*" rollback-for="Exception"/>
+		</tx:attributes>
+ 	</tx:advice>
+ 	
+ 	<!-- 모니터링(Slave DB), Slave라서 트랜잭션 처리 없음 -->
+    <bean id="mntr-slave-sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+	     <property name="dataSource" ref="mntr-slave-dataSource"/>
+	     <property name="mapperLocations" value="classpath:sqlmapper/**/*.xml"/>
+	     <property name="plugins" ref="mybatisSqlBindLog"></property>
+    </bean>
+    <bean id="mntr-slave-sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+    	<constructor-arg index="0" ref="mntr-slave-sqlSessionFactory"></constructor-arg>
+    </bean> 
+		
+</beans>

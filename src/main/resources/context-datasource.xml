@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:util="http://www.springframework.org/schema/util"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:p="http://www.springframework.org/schema/p"
+
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+	        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd
+	        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+	        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+	   		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd">
+	
+	<!-- Apache DBCP DataSource를 생성한다. 데이터베이스 관련 설정은 jdbc.properties를 따른다. -->
+	
+	<!-- 모니터링 -->
+	<bean id="mntr-dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+	  <property name="driverClassName" value="${mntr-jdbc.driverClassName}"/>
+      <property name="url" value="${mntr-jdbc.url}&amp;connectTimeout=${mntr-db.connectTimeout}&amp;socketTimeout=${mntr-db.socketTimeout}"/>
+      <property name="username" value="${mntr-jdbc.username}"/>
+      <property name="password" value="${mntr-jdbc.password}"/>
+      <property name="validationQuery" value="select 1" />
+      <property name="initialSize" value="${dbcp.initialSize}"/>
+      <property name="minIdle" value="${dbcp.minIdle}"/>
+	  <property name="maxIdle" value="${dbcp.maxIdle}"/>
+	  <property name="maxTotal" value="${dbcp.maxTotal}"/>
+	  <property name="maxWaitMillis" value="${dbcp.maxWaitMillis}"/>
+	  <property name="testOnBorrow" value="false" />
+	  <property name="testOnReturn" value="false" />
+	  <property name="testWhileIdle" value="true" /> <!-- Evictor 스레드 실행시 미사용상태 커넥션만 대상 -->
+	  <property name="timeBetweenEvictionRunsMillis" value="${dbcp.timeBetweenEvictionRunsMillis}"/> <!-- Evictor 스레드가 동작하는 간격 -->
+	  <property name="minEvictableIdleTimeMillis" value="-1" /> <!-- -1로 설정해서 미사용. 값 설정시 Evictor 스레드 동작시 해당 시간값 이상동안 유휴라면 풀에서 제거 -->
+	  <property name="numTestsPerEvictionRun" value="${dbcp.numTestsPerEvictionRun}"/> <!--  Evictor 스레드 동작 시 한 번에 검사할 커넥션의 개수 -->
+	  <property name="logAbandoned" value="false" />
+	  <property name="poolPreparedStatements" value="${dbcp.poolPreparedStatements}" />   <!-- statement preparation 캐쉬 사용 여부 --> 
+	  <property name="maxOpenPreparedStatements" value="${dbcp.maxOpenPreparedStatements}" /> <!-- statement preparation캐쉬할 개수(DB커넥션당 개수임) -->
+	</bean>
+	
+	<!-- 모니터링(Slave DB) -->
+	<bean id="mntr-slave-dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+	  <property name="driverClassName" value="${mntr-slave-jdbc.driverClassName}"/>
+      <property name="url" value="${mntr-slave-jdbc.url}&amp;connectTimeout=${mntr-slave-db.connectTimeout}&amp;socketTimeout=${slave-db.socketTimeout}"/>
+      <property name="username" value="${slave-jdbc.username}"/>
+      <property name="password" value="${slave-jdbc.password}"/>
+      <property name="validationQuery" value="select 1" />
+      <property name="initialSize" value="${dbcp.initialSize}"/>
+      <property name="minIdle" value="${dbcp.minIdle}"/>
+	  <property name="maxIdle" value="${dbcp.maxIdle}"/>
+	  <property name="maxTotal" value="${dbcp.maxTotal}"/>
+	  <property name="maxWaitMillis" value="${dbcp.maxWaitMillis}"/>
+	  <property name="testOnBorrow" value="false" />
+	  <property name="testOnReturn" value="false" />
+	  <property name="testWhileIdle" value="true" /> <!-- Evictor 스레드 실행시 미사용상태 커넥션만 대상 -->
+	  <property name="timeBetweenEvictionRunsMillis" value="${dbcp.timeBetweenEvictionRunsMillis}"/> <!-- Evictor 스레드가 동작하는 간격 -->
+	  <property name="minEvictableIdleTimeMillis" value="-1" /> <!-- -1로 설정해서 미사용. 값 설정시 Evictor 스레드 동작시 해당 시간값 이상동안 유휴라면 풀에서 제거 -->
+	  <property name="numTestsPerEvictionRun" value="${dbcp.numTestsPerEvictionRun}"/> <!--  Evictor 스레드 동작 시 한 번에 검사할 커넥션의 개수 -->
+	  <property name="logAbandoned" value="false" />
+	  <property name="poolPreparedStatements" value="${dbcp.poolPreparedStatements}" />   <!-- statement preparation 캐쉬 사용 여부 --> 
+	  <property name="maxOpenPreparedStatements" value="${dbcp.maxOpenPreparedStatements}" /> <!-- statement preparation캐쉬할 개수(DB커넥션당 개수임) -->
+	</bean>
+</beans>
