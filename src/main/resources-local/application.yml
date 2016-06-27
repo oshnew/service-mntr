@@ -1,0 +1,58 @@
+#Env : local
+
+#Project Info
+info:
+  app:
+    name: 서비스모니터링(local)
+    description: 서비스모니터링프로젝트
+    version: 1.0.0
+
+#Tomcat setting     
+server:
+  tomcat:
+    max-threads: 500
+    #basedir: c:/temp/tomcat_mntr_${server.port}
+    accesslog:
+      enabled: true
+      directory: c:/temp/logs/tomcat_mntr_${server.port}
+      prefix: access_mntr_${server.port}
+      pattern: "%{yyyy-MM-dd HH:mm:ss}t %a \"%r\" %s (%b sent byte) (%D ms)"
+    
+#Spring Setting  
+spring:
+  http:
+    encoding:
+      enabled: true
+      charset: UTF-8
+      force : true
+  jmx:
+    enabled: false
+  datasource:
+    jmx-enabled: false
+  cache:
+    ehcache:
+      config: cache/ehcache.xml
+
+#Security
+security:
+  basic:
+    enabled: false
+  user:
+    name: admin
+    password: test1029
+
+#Multipart Setting
+multipart:
+  enabled: true
+  max-file-size: 10MB
+      
+#manageMent Setting
+management:
+  security:
+    enabled: true
+  context-path: /adminManage
+  
+endpoints:
+  dump:
+    enabled: false
+     
